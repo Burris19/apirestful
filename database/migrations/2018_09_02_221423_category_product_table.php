@@ -17,8 +17,8 @@ class CategoryProductTable extends Migration
             $table->integer('category_id')->unsigned();
             $table->integer('product_id')->unsigned();
 
-            $table->foreign('category_id')->references('id')->on('Categories');
-            $table->foreign('product_id')->references('id')->on('Products');
+            $table->foreign('category_id')->references('id')->on('categories');
+            $table->foreign('product_id')->references('id')->on('products');
         });
     }
 

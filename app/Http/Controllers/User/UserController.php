@@ -27,7 +27,23 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $rules = [
+            'name' => 'required',
+            'email' => 'required|email|unique:users',
+            'password' => 'required|min:6|confirmed'
+        ];
+
+        $this->validate($request, $rules);
+
+        $fields = $request->all();
+        $fields['password'] = bcrypt($request->password);
+        $fields['verified'] = User::USER_NOT_VERIFICATED;
+        $fields['verifiication_token'] = User::generateVerificateToken();
+        $fields['admin'] = User::USER_REGULAR;
+
+        $user = User::create($fields);
+
+        return response()->json(['data' => $user], 201);
     }
 
     /**
@@ -51,7 +67,46 @@ class UserController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $user = User::findOrFail($id);
+
+        $rules = [
+            'email' => 'email|unique:users,email,' . $user->id,
+            'password' => 'min:6|confirmed',
+            'admin' => 'in:' . User::USER_ADMIN . ',' . User::USER_REGULAR,
+        ];
+
+        $this->validate($request, $rules);
+
+        if ($request->has('name')) {
+            $user->name = $request->name;
+        }
+
+        if ($request->has('email') && $request->email != $user->email) 
+        {
+            $user->verified = User::USER_NOT_VERIFICATED;
+            $user->verification_token = User::generateVerificateToken();
+            $user->email = $request->email;
+        }
+
+        if ($request->has('password')) {
+            $user->password = bcrypt($request->password);
+        }
+
+        if ($request->has('admin')) {
+            if (!$user->idAdmin()) {
+                return response()->json(['error' => 'Unicamente los usuarios verificados pueden cambiar su valor de administrador', 'code' => 409], 409);
+            }
+            $user->admin = $request->admin;
+        }
+
+        if (!$user->isDirty()) {
+            return response()->json(['Debes de especificar almenos algun valor diferente para hacer la actualizacion', 'code' => 422], 422);
+        }
+
+        $user->save();
+
+        return response()->json(['data' => $user], 200);
+
     }
 
     /**

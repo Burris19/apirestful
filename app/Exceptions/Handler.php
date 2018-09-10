@@ -6,6 +6,7 @@ use App\Traits\ApiResponser;
 use Exception;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class Handler extends ExceptionHandler
 {
@@ -51,6 +52,12 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Exception $exception)
     {
+
+        if ($exception instanceof ModelNotFoundException) {
+            $model = strtolower(class_basename($exception->getModel()));
+            return $this->errorResponse("No existe ninguna instancia de {$model} con el ID indicado", 404);
+        }
+
         return parent::render($request, $exception);
     }
 

@@ -14,6 +14,7 @@ class SellerProductController extends ApiController
     /**
      * Display a listing of the resource.
      *
+     * @param Seller $seller
      * @return \Illuminate\Http\Response
      */
     public function index(Seller $seller)
@@ -21,16 +22,6 @@ class SellerProductController extends ApiController
         $products = $seller->products;
 
         return $this->showAll($products);
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
     }
 
     /**
@@ -62,37 +53,48 @@ class SellerProductController extends ApiController
     }
 
     /**
-     * Display the specified resource.
-     *
-     * @param  \App\Seller  $seller
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Seller $seller)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Seller  $seller
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Seller $seller)
-    {
-        //
-    }
-
-    /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Seller  $seller
-     * @return \Illuminate\Http\Response
+     * @param  \Illuminate\Http\Request $request
+     * @param  \App\Seller $seller
+     * @param Product $product
+     * @return void
      */
-    public function update(Request $request, Seller $seller)
+    public function update(Request $request, Seller $seller, Product $product)
     {
-        //
+        $rules = [
+            'quantity' => 'integer|min:1',
+            'image' => 'image',
+            'status' => 'in:' . Product::PRODUCT_NOT_AVAILABLE . ',' . Product::PRODUCT_AVAILABLE
+        ];
+
+        $this->validate($request, $rules);
+
+        if ($seller->id != $product->seller_id) {
+            return $this->errorResponse('El vendedor especificado no es el vendedor real del producto', 422);
+        }
+
+        $product->fill($request->only([
+            'name',
+            'description',
+            'quantity'
+        ]));
+
+        if($request->has('status')) {
+            $product->status = $request->status;
+
+            if($product->isAvailable() && $product->categories()->count() == 0) {
+                return $this->errorResponse('Un producto activo debe tener al menos una categoria', 409);
+            }
+        }
+
+        if ($product->isClean()) {
+            return $this->errorResponse('Se debe especificar al menos un valor diferente para actualizar', 422);
+        }
+
+        $product->save();
+
+        return $this->showOne($product);
     }
 
     /**

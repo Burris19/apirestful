@@ -59,7 +59,7 @@ class User extends Authenticatable
         'verification_token'
     ];
 
-    public function idVerificated() {
+    public function isVerificated() {
         return $this->verified == User::USER_VERIFICATED;
     }
 

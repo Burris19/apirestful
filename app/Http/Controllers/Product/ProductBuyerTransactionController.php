@@ -20,6 +20,7 @@ class ProductBuyerTransactionController extends ApiController
      */
     public function store(Request $request, Product $product, User $buyer)
     {
+
         $rules = [
             'quantity' => 'required|min:1'
         ];

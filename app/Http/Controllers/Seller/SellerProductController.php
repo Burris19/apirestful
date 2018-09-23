@@ -7,6 +7,7 @@ use App\Product;
 use App\Seller;
 use App\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
 
@@ -46,7 +47,7 @@ class SellerProductController extends ApiController
         $data = $request->all();
         $data['status'] = Product::PRODUCT_NOT_AVAILABLE;
         $data['seller_id'] = $seller->id;
-        $data['image'] = 'default_1.jpg';
+        $data['image'] = $request->image->store('');
 
         $product = Product::create($data);
 
@@ -107,6 +108,8 @@ class SellerProductController extends ApiController
     public function destroy(Seller $seller, Product $product)
     {
         $this->verifySeller($seller, $product);
+
+        Storage::delete($product->image);
 
         $product->delete();
 

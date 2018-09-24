@@ -33,6 +33,17 @@ class User extends Authenticatable
         'admin',
     ];
 
+    /**
+     * The attributes that should be hidden for arrays.
+     *
+     * @var array
+     */
+    protected $hidden = [
+        'password',
+        'remember_token',
+//        'verification_token'
+    ];
+
     public function setNameAttribute($valor)
     {
         $this->attributes['name'] = strtolower($valor);
@@ -47,17 +58,6 @@ class User extends Authenticatable
     {
         $this->attributes['email'] = strtolower($valor);
     }
-
-    /**
-     * The attributes that should be hidden for arrays.
-     *
-     * @var array
-     */
-    protected $hidden = [
-        'password',
-        'remember_token',
-        'verification_token'
-    ];
 
     public function isVerificated() {
         return $this->verified == User::USER_VERIFICATED;

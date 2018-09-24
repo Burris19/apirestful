@@ -7,7 +7,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 
-class userCreated extends Mailable
+class UserCreated extends Mailable
 {
     use Queueable, SerializesModels;
 
@@ -30,6 +30,6 @@ class userCreated extends Mailable
      */
     public function build()
     {
-        return $this->text('emails.welcome');
+        return $this->text('emails.welcome')->subject('Verificacion de Usuario');
     }
 }

@@ -1,4 +1,4 @@
-Hola {{$user->email}}
+Hola {{$user->name}}
 
 Gracias por registrarte en nuestra plataforma.
 
